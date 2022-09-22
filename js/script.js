@@ -339,6 +339,7 @@ window.addEventListener('DOMContentLoaded', () => {
     //SLIDER
 
     const slideItem = document.querySelectorAll(".offer__slide"),
+          slider = document.querySelector('.offer__slider'),
           numberOfCurrentSlide = document.querySelector("#current"),
           numberOfTotalSlides = document.querySelector("#total"),
           arrowOfPrevSlier = document.querySelector('.offer__slider-prev'),
@@ -374,6 +375,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     showCurrent();
 
+    function changeOpacityForDot(n = 1) {
+        dotsArr.forEach(item => item.style.opacity = '.5');
+        dotsArr[n].style.opacity = 1;
+    }
+    changeOpacityForDot();
 
     arrowOfNextSlier.addEventListener("click", () => {
         if(offset == +width.slice(0, width.length - 2) * (slideItem.length - 1)) {
@@ -386,6 +392,7 @@ window.addEventListener('DOMContentLoaded', () => {
         
         sliderInner.style.transform = `translateX(-${offset}px)`;
         showCurrent(current);
+        changeOpacityForDot(current);
     });
 
     arrowOfPrevSlier.addEventListener("click", () => {
@@ -399,9 +406,70 @@ window.addEventListener('DOMContentLoaded', () => {
         
         sliderInner.style.transform = `translateX(-${offset}px)`;
         showCurrent(current);
+        changeOpacityForDot(current);
     });
 
+    const dotCarousel = document.createElement('ol');
+    dotCarousel.classList.add('carousel-indicators');
+    dotCarousel.style.cssText = `
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        display: flex;
+        justify-content: center;
+        margin-right: 15%;
+        margin-left: 15%;
+        list-style: none;
+    `;
+    slider.style.position = 'relative';
+    slider.append(dotCarousel);
+
+    let dotsArr = [];
     
+    for(let i = 0; i < slideItem.length; i++) {
+        const dot = document.createElement('li');
+        dot.style.cssText = `
+            box-sizing: content-box;
+            flex: 0 1 auto;
+            width: 30px;
+            height: 6px;
+            margin-right: 3px;
+            margin-left: 3px;
+            cursor: pointer;
+            background-color: #fff;
+            background-clip: padding-box;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            opacity: .5;
+            transition: opacity .6s ease;
+        `;
+        dot.setAttribute('data-slide-to', i);
+
+        dotCarousel.append(dot);
+        dotsArr.push(dot);
+
+        if(i == 0) {
+            dotsArr[i].style.opacity = 1;
+        }      
+    }
+
+    dotsArr.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            const slideTo = e.target.getAttribute('data-slide-to');
+
+            current = slideTo;
+
+            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            sliderInner.style.transform = `translateX(-${offset}px)`;
+
+            changeOpacityForDot(slideTo);
+            showCurrent(slideTo);
+
+        });
+    });
+
     // function hideSlide() {
     //     slideItem.forEach (slide => {
     //         slide.classList.add('hide');
